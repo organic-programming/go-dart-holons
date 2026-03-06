@@ -1,108 +1,108 @@
-# Introducing GODART (go-dart-holons)
+# GODART (`go-dart-holons`)
 
-**The missing GUI layer for Go.** Go excels at concurrency, networking,
-and systems programming — but has no native desktop or mobile UI story.
-Godart bridges that gap: write your logic in Go, build your interface
-in Flutter, and connect the two with gRPC over process pipes. No
-bindings, no CGo glue code, no compromise.
+Godart is the recipe stack for composite apps with a Go backend and a
+Flutter frontend.
 
-Tooling, recipes, and documentation for building **Godart apps** —
-Flutter (Dart) applications powered by an embedded Go daemon.
+This repository has two faces:
 
-## What is a Godart App?
+1. It is a toolkit for building your own composite apps: scripts,
+   templates, conventions, and architecture notes.
+2. It is a living showcase: `examples/greeting/` ships the full
+   `Gudule Greeting Godart` holon, so you can see the pattern working
+   end to end.
+
+## Start Here
+
+- Want to run the flagship sample now? Start with the
+  [Gudule Greeting Godart README](examples/greeting/greeting-godart/README.md).
+- Want platform-specific build steps? Read [BUILD.md](BUILD.md).
+- Want the architecture behind the pattern? Read [APPS.md](APPS.md).
+- Want the AI-agent rules that keep the stack coherent? Read
+  [AGENT.md](AGENT.md).
+
+## What Is a Godart App?
 
 A Godart app is a Flutter application that ships with a Go backend.
 The Go component runs as a headless gRPC daemon; the Flutter UI is a
-pure gRPC client. The two communicate through Protocol Buffers over
-an HTTP/2 channel — no FFI for data exchange.
+gRPC client. On desktop, they talk over `stdio://` pipes. On mobile,
+the daemon can also be embedded as a shared library and reached over
+`unix://`.
 
-| Platform | Transport | Go Artifact | Launch |
+| Platform | Transport | Go artifact | Launch |
 |----------|-----------|-------------|--------|
-| **Desktop** (macOS, Linux, Windows) | `stdio://` pipes | Standalone binary | `Process.start()` |
-| **Mobile** (iOS, Android) | `unix://` socket | C shared library | `dart:ffi` |
+| macOS, Linux, Windows | `stdio://` | Standalone binary | `Process.start()` |
+| iOS, Android | `unix://` | C shared library | `dart:ffi` |
 
----
+## Gudule Greeting Godart in Action
 
-## Try It: Greeting Example
+The reference implementation in this repository is
+`Gudule Greeting Godart`: a Go daemon plus a Flutter UI that greets
+users in 56 languages.
 
-This SDK ships with a working example — a Go daemon that greets users
-in 56 languages and a Flutter UI with a language picker. It
-demonstrates the full Godart pattern: proto contract, `stdio://` gRPC
-communication, and cross-platform bundling.
+Source directories still use the historical names:
 
-#### macOS
+- `examples/greeting/greeting-daemon/`
+- `examples/greeting/greeting-godart/`
+
+But the shipped desktop artifacts are:
+
+- `gudule-daemon-greeting-godart`
+- `gudule-greeting-godart`
+
+### Fastest Path: macOS
 
 ```bash
-cd examples/greeting
-./greeting-godart/scripts/build_daemon.sh   # Go → build/daemon
-cd greeting-godart
-flutter build macos --debug
+cd examples/greeting/greeting-godart
+flutter pub get
+./scripts/build_daemon.sh
 flutter run -d macos
 ```
 
-#### Linux
+For Linux, Windows, iOS, Android, and CI flows, use
+[BUILD.md](BUILD.md).
 
-```bash
-cd examples/greeting
-../../scripts/build_daemon.sh greeting-daemon build
-cd greeting-godart
-flutter build linux --debug
-cp ../build/daemon build/linux/x64/debug/bundle/daemon
-flutter run -d linux
-```
-
-#### Windows
-
-```powershell
-cd examples\greeting
-..\..\scripts\build_daemon.sh greeting-daemon build
-cd greeting-godart
-flutter build windows --debug
-copy ..\build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
-flutter run -d windows
-```
-
-![Greeting Godart — macOS](assets/greeting-godart.png)
-
-For iOS, Android, Docker CI, and more details see **[BUILD.md](BUILD.md)**.
-
----
+![Gudule Greeting Godart - macOS](assets/greeting-godart.png)
 
 ## Project Structure
 
-```
+```text
 go-dart-holons/
-├── BUILD.md                     # Build & run — all platforms
+├── README.md                    # Entry point: toolkit + showcase
+├── BUILD.md                     # Build Gudule Greeting Godart, then adapt the pattern
 ├── APPS.md                      # Architecture and integration guide
-├── AGENT.md                     # Agent context for AI-assisted development
+├── AGENT.md                     # Rules for AI-assisted maintenance
 ├── scripts/
-│   ├── build_daemon.sh          # Build Go daemon binary (desktop)
-│   └── build_mobile.sh          # Build Go C shared library (mobile)
+│   ├── build_daemon.sh          # Generic desktop daemon build helper
+│   └── build_mobile.sh          # Generic mobile shared-library helper
 ├── templates/
-│   ├── xcode_build_phase.sh     # macOS: copy binary into .app bundle
+│   ├── xcode_build_phase.sh     # Example macOS bundle-copy phase
 │   └── proto_gen.sh             # Dual Go + Dart protoc generation
 └── examples/
-    └── greeting/                # Greeting example (Go + Dart)
-        ├── greeting-daemon/     # Go daemon — 56-language greeting service
-        └── greeting-godart/     # Flutter app — language picker + gRPC client
+    └── greeting/
+        ├── holon.yaml           # Composite holon manifest for Gudule Greeting Godart
+        ├── greeting-daemon/     # Go daemon source
+        └── greeting-godart/     # Flutter frontend source
 ```
 
-## Documentation
+## Documentation Map
 
-| Document | Description |
-|----------|-------------|
-| [BUILD.md](BUILD.md) | Build & run instructions for every platform |
-| [APPS.md](APPS.md) | Architecture reference — proto sharing, transport, shutdown, mobile FFI |
-| [AGENT.md](AGENT.md) | Conventions and design rules for AI-assisted development |
+| Document | Role |
+|----------|------|
+| [README.md](README.md) | Explains the two faces of the repository |
+| [BUILD.md](BUILD.md) | Shows how to build Gudule Greeting Godart and reuse the same workflow |
+| [APPS.md](APPS.md) | Explains the composite-app architecture in detail |
+| [examples/greeting/greeting-godart/README.md](examples/greeting/greeting-godart/README.md) | Gudule Greeting Godart quickstart |
+| [AGENT.md](AGENT.md) | Maintenance rules for agents and contributors |
 
 ## Related SDKs
 
 | SDK | Role |
 |-----|------|
-| [go-holons](https://github.com/organic-programming/go-holons) | Go SDK — transport, serve, grpcclient, identity |
-| [dart-holons](https://github.com/organic-programming/dart-holons) | Dart SDK — transport, dialStdio, grpcclient |
+| [go-holons](https://github.com/organic-programming/go-holons) | Go transport, serving, and identity |
+| [dart-holons](https://github.com/organic-programming/dart-holons) | Dart transport and stdio gRPC client support |
 
 ## Organic Programming
 
-This SDK is part of the [Organic Programming](https://github.com/organic-programming/seed)
+This SDK is part of the
+[Organic Programming](https://github.com/organic-programming/seed)
 ecosystem.

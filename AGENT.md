@@ -2,6 +2,22 @@
 
 Instructions for AI coding agents working on Godart apps.
 
+## Repository Intent
+
+This repository has two equal responsibilities:
+
+1. provide reusable tooling and patterns for composite Go + Flutter apps
+2. keep `Gudule Greeting Godart` (`examples/greeting/`) as the living reference example
+
+When you change example names, binary paths, or build flow in
+`Gudule Greeting Godart`,
+update the document stack together:
+
+- `README.md`
+- `BUILD.md`
+- `examples/greeting/greeting-godart/README.md`
+- any platform build files that bundle or copy the daemon
+
 ## Proto Sharing: No Copy, No Symlink
 
 In a Godart app, the **proto source of truth lives in the Go daemon**
@@ -89,3 +105,4 @@ On mobile, `unix://` with the sandbox socket path.
 1. Build the Go daemon first (binary or shared library)
 2. Build the Flutter app (Xcode/Gradle/CMake copies the artifact)
 3. Always rebuild the daemon when the proto changes
+4. Keep the reusable recipe and `Gudule Greeting Godart` in sync

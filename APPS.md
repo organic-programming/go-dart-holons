@@ -3,6 +3,30 @@
 > *Recipe: how we integrate a Go gRPC daemon into a Flutter (Dart)
 > application — desktop and mobile.*
 
+## Two Ways to Read This Repository
+
+This repository should be read in two complementary ways:
+
+- As a toolkit: scripts, conventions, and build patterns you can reuse
+  for your own composite app.
+- As a showcase: the `Gudule Greeting Godart` reference implementation under
+  `examples/greeting/`, where the full pattern is already working.
+
+Current reference implementation:
+
+- composite holon: `examples/greeting/holon.yaml`
+- Go daemon: `examples/greeting/greeting-daemon/`
+- Flutter frontend: `examples/greeting/greeting-godart/`
+- shipped desktop artifacts:
+  `gudule-daemon-greeting-godart` and `gudule-greeting-godart`
+
+Recommended reading order:
+
+1. Run `Gudule Greeting Godart` first with
+   [`examples/greeting/greeting-godart/README.md`](examples/greeting/greeting-godart/README.md)
+2. Use [BUILD.md](BUILD.md) for platform-specific commands
+3. Use this document to understand why the pattern works
+
 ## Overview
 
 A **Godart app** is a Flutter application that ships with an embedded Go
