@@ -57,7 +57,7 @@ cd examples/greeting
 cd greeting-godart
 flutter build linux --debug
 cp ../build/daemon build/linux/x64/debug/bundle/daemon
-./build/linux/x64/debug/bundle/greeting_godart
+./build/linux/x64/debug/bundle/gudule
 ```
 
 ### Cross-compile from macOS
@@ -94,7 +94,7 @@ cd examples\greeting
 cd greeting-godart
 flutter build windows --debug
 copy ..\build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
-.\build\windows\x64\runner\Debug\greeting_godart.exe
+.\build\windows\x64\runner\Debug\gudule.exe
 ```
 
 ### Cross-compile from macOS/Linux

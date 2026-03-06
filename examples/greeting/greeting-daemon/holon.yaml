@@ -2,7 +2,7 @@
 schema: holon/v0
 uuid: "1a409a1e-69e3-4846-9f9b-47b0a6f98f84"
 given_name: greeting-daemon
-family_name: Godart Examples
+family_name: Greeting-Godart
 motto: Greets users in 56 languages — a Godart recipe example.
 composer: B. ALTER
 clade: deterministic/pure
