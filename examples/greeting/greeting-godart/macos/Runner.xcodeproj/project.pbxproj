@@ -336,7 +336,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "DAEMON_BINARY=\"${SRCROOT}/../build/daemon\"\nDEST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/\"\n\nif [ -f \"$DAEMON_BINARY\" ]; then\n  mkdir -p \"$DEST\"\n  cp \"$DAEMON_BINARY\" \"$DEST/daemon\"\n  chmod +x \"$DEST/daemon\"\n  echo \"Bundled daemon binary into Resources\"\nelse\n  echo \"warning: daemon binary not found at $DAEMON_BINARY\"\n  echo \"Run: ./scripts/build_daemon.sh before flutter build\"\nfi\n";
+			shellScript = "DAEMON_BINARY=\"${SRCROOT}/../../build/daemon\"\nDEST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/\"\n\nif [ -f \"$DAEMON_BINARY\" ]; then\n  mkdir -p \"$DEST\"\n  cp \"$DAEMON_BINARY\" \"$DEST/daemon\"\n  chmod +x \"$DEST/daemon\"\n  echo \"Bundled daemon binary into Resources\"\nelse\n  echo \"warning: daemon binary not found at $DAEMON_BINARY\"\n  echo \"Run: ./scripts/build_daemon.sh before flutter build\"\nfi\n";
 		};
 		33CC111E2044C6BF0003C045 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

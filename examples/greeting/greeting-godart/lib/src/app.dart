@@ -37,7 +37,7 @@ class _GreetingAppState extends State<GreetingApp> {
 
     // Dev fallback: local artifact produced by scripts/build_daemon.sh.
     final name = Platform.isWindows ? 'daemon.exe' : 'daemon';
-    final devBinary = File('${Directory.current.path}/build/$name');
+    final devBinary = File('${Directory.current.path}/../build/$name');
     if (devBinary.existsSync()) {
       return devBinary.path;
     }
