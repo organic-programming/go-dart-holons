@@ -33,8 +33,9 @@ communication, and cross-platform bundling.
 #### macOS
 
 ```bash
-cd examples/greeting/greeting-godart
-./scripts/build_daemon.sh
+cd examples/greeting
+./greeting-godart/scripts/build_daemon.sh   # Go → build/daemon
+cd greeting-godart
 flutter build macos --debug
 flutter run -d macos
 ```
@@ -42,22 +43,22 @@ flutter run -d macos
 #### Linux
 
 ```bash
-cd examples/greeting/greeting-daemon
-go build -o ../greeting-godart/build/daemon ./cmd/daemon
-cd ../greeting-godart
+cd examples/greeting
+../../scripts/build_daemon.sh greeting-daemon build
+cd greeting-godart
 flutter build linux --debug
-cp build/daemon build/linux/x64/debug/bundle/daemon
+cp ../build/daemon build/linux/x64/debug/bundle/daemon
 flutter run -d linux
 ```
 
 #### Windows
 
 ```powershell
-cd examples\greeting\greeting-daemon
-go build -o ..\greeting-godart\build\daemon.exe .\cmd\daemon
-cd ..\greeting-godart
+cd examples\greeting
+..\..\scripts\build_daemon.sh greeting-daemon build
+cd greeting-godart
 flutter build windows --debug
-copy build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
+copy ..\build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
 flutter run -d windows
 ```
 

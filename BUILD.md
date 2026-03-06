@@ -6,6 +6,9 @@ supported platform. All commands below use the **greeting example**
 same workflow applies to any Godart app — just replace the paths and
 names with your own holons.
 
+All build artifacts are placed in `examples/greeting/build/` — never
+inside the source directories.
+
 ---
 
 ## macOS
@@ -19,15 +22,16 @@ names with your own holons.
 ### Build & Run
 
 ```bash
-cd examples/greeting/greeting-godart
-./scripts/build_daemon.sh          # Go → build/daemon
-flutter build macos --debug        # Xcode copies daemon into .app
+cd examples/greeting
+./greeting-godart/scripts/build_daemon.sh   # Go → build/daemon
+cd greeting-godart
+flutter build macos --debug                 # Xcode copies daemon into .app
 flutter run -d macos
 ```
 
 ### How it works
 
-- `scripts/build_daemon.sh` compiles the Go daemon into `build/daemon`
+- `build_daemon.sh` compiles the Go daemon into `greeting/build/daemon`
 - An Xcode "Run Script" build phase copies it into
   `Contents/Resources/daemon` inside the `.app` bundle
 - At runtime, the app spawns the daemon with `--listen stdio://`
@@ -48,19 +52,19 @@ flutter run -d macos
 ### Build & Run
 
 ```bash
-cd examples/greeting/greeting-daemon
-go build -o ../greeting-godart/build/daemon ./cmd/daemon
-
-cd ../greeting-godart
+cd examples/greeting
+../../scripts/build_daemon.sh greeting-daemon build
+cd greeting-godart
 flutter build linux --debug
-cp build/daemon build/linux/x64/debug/bundle/daemon
+cp ../build/daemon build/linux/x64/debug/bundle/daemon
 ./build/linux/x64/debug/bundle/greeting_godart
 ```
 
 ### Cross-compile from macOS
 
 ```bash
-GOOS=linux GOARCH=amd64 go build -o build/daemon ./cmd/daemon
+cd examples/greeting/greeting-daemon
+GOOS=linux GOARCH=amd64 go build -o ../../build/daemon ./cmd/daemon
 ```
 
 ### Docker (headless CI)
@@ -85,19 +89,19 @@ docker run --rm -v "$(pwd):/workspace" godart-linux-test bash -c '...'
 ### Build & Run
 
 ```powershell
-cd examples\greeting\greeting-daemon
-go build -o ..\greeting-godart\build\daemon.exe .\cmd\daemon
-
-cd ..\greeting-godart
+cd examples\greeting
+..\..\scripts\build_daemon.sh greeting-daemon build
+cd greeting-godart
 flutter build windows --debug
-copy build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
+copy ..\build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
 .\build\windows\x64\runner\Debug\greeting_godart.exe
 ```
 
 ### Cross-compile from macOS/Linux
 
 ```bash
-GOOS=windows GOARCH=amd64 go build -o daemon.exe ./cmd/daemon
+cd examples/greeting/greeting-daemon
+GOOS=windows GOARCH=amd64 go build -o ../../build/daemon.exe ./cmd/daemon
 ```
 
 ### Shutdown behavior
@@ -121,9 +125,10 @@ desktop platforms.
 ### Build the shared library
 
 ```bash
+cd examples/greeting/greeting-daemon
 CGO_ENABLED=1 GOOS=ios GOARCH=arm64 \
   go build -buildmode=c-shared \
-  -o build/libdaemon.dylib ./cmd/daemon
+  -o ../../build/ios/libdaemon.dylib ./cmd/daemon
 ```
 
 ### Integration
@@ -164,9 +169,10 @@ flutter run -d <device-id>
 ### Build the shared library
 
 ```bash
+cd examples/greeting/greeting-daemon
 CGO_ENABLED=1 GOOS=android GOARCH=arm64 \
   go build -buildmode=c-shared \
-  -o build/libdaemon.so ./cmd/daemon
+  -o ../../build/android/libdaemon.so ./cmd/daemon
 ```
 
 ### Integration

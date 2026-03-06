@@ -134,7 +134,7 @@ packages:
   holons:
     dependency: "direct main"
     description:
-      path: "../../../../sdk/dart-holons"
+      path: "../../../../../sdk/dart-holons"
       relative: true
     source: path
     version: "0.1.0"

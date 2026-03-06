@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   holons:
-    path: ../../../../sdk/dart-holons
+    path: ../../../../../sdk/dart-holons
   grpc: ^5.1.0
   protobuf: ^6.0.0
   http2: ^2.3.0

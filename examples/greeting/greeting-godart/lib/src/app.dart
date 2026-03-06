@@ -24,23 +24,41 @@ class _GreetingAppState extends State<GreetingApp> {
     _connect();
   }
 
-  String _resolveDaemonPath() {
+  String? _resolveEmbeddedDaemonPath() {
     final exe = Platform.resolvedExecutable;
     if (Platform.isMacOS) {
       // macOS: daemon is in Contents/Resources/
-      return exe.replaceFirst(RegExp(r'/[^/]+$'), '/../Resources/daemon');
+      final bundled =
+          exe.replaceFirst(RegExp(r'/[^/]+$'), '/../Resources/daemon');
+      if (File(bundled).existsSync()) {
+        return bundled;
+      }
     }
-    // Linux/Windows: daemon sits next to the executable
-    final dir = File(exe).parent.path;
+
+    // Dev fallback: local artifact produced by scripts/build_daemon.sh.
     final name = Platform.isWindows ? 'daemon.exe' : 'daemon';
-    return '$dir/$name';
+    final devBinary = File('${Directory.current.path}/build/$name');
+    if (devBinary.existsSync()) {
+      return devBinary.path;
+    }
+
+    // Linux/Windows bundle layout: daemon sits next to the executable.
+    if (!Platform.isMacOS) {
+      final dir = File(exe).parent.path;
+      final sibling = '$dir/$name';
+      if (File(sibling).existsSync()) {
+        return sibling;
+      }
+    }
+
+    return null;
   }
 
   Future<void> _connect() async {
     try {
-      final daemonPath = _resolveDaemonPath();
+      final daemonPath = _resolveEmbeddedDaemonPath();
 
-      if (File(daemonPath).existsSync()) {
+      if (daemonPath != null) {
         await _client.connectEmbedded(daemonPath);
       } else {
         // Fallback: external daemon for development.
