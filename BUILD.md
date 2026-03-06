@@ -19,7 +19,7 @@ names with your own holons.
 ### Build & Run
 
 ```bash
-cd examples/greeting-godart
+cd examples/greeting/greeting-godart
 ./scripts/build_daemon.sh          # Go → build/daemon
 flutter build macos --debug        # Xcode copies daemon into .app
 flutter run -d macos
@@ -48,7 +48,7 @@ flutter run -d macos
 ### Build & Run
 
 ```bash
-cd examples/greeting-daemon
+cd examples/greeting/greeting-daemon
 go build -o ../greeting-godart/build/daemon ./cmd/daemon
 
 cd ../greeting-godart
@@ -67,7 +67,7 @@ GOOS=linux GOARCH=amd64 go build -o build/daemon ./cmd/daemon
 
 ```bash
 docker build -t godart-linux-test \
-  -f examples/greeting-godart/docker/Dockerfile.linux-test .
+  -f examples/greeting/greeting-godart/docker/Dockerfile.linux-test .
 docker run --rm -v "$(pwd):/workspace" godart-linux-test bash -c '...'
 ```
 
@@ -85,7 +85,7 @@ docker run --rm -v "$(pwd):/workspace" godart-linux-test bash -c '...'
 ### Build & Run
 
 ```powershell
-cd examples\greeting-daemon
+cd examples\greeting\greeting-daemon
 go build -o ..\greeting-godart\build\daemon.exe .\cmd\daemon
 
 cd ..\greeting-godart
@@ -205,7 +205,7 @@ flutter run -d <device-id>
 For development, run the daemon in a separate terminal:
 
 ```bash
-cd examples/greeting-daemon
+cd examples/greeting/greeting-daemon
 go run ./cmd/daemon serve --listen tcp://:9091
 ```
 

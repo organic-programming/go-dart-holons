@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DAEMON_SRC="$(cd "${SCRIPT_DIR}/../../greeting-daemon" && pwd)"
+DAEMON_SRC="$(cd "${SCRIPT_DIR}/../greeting-daemon" && pwd)"
 OUTPUT_DIR="${1:-${SCRIPT_DIR}/../build}"
 
 GO="$(command -v go)"

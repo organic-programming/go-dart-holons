@@ -33,7 +33,7 @@ communication, and cross-platform bundling.
 #### macOS
 
 ```bash
-cd examples/greeting-godart
+cd examples/greeting/greeting-godart
 ./scripts/build_daemon.sh
 flutter build macos --debug
 flutter run -d macos
@@ -42,7 +42,7 @@ flutter run -d macos
 #### Linux
 
 ```bash
-cd examples/greeting-daemon
+cd examples/greeting/greeting-daemon
 go build -o ../greeting-godart/build/daemon ./cmd/daemon
 cd ../greeting-godart
 flutter build linux --debug
@@ -53,7 +53,7 @@ flutter run -d linux
 #### Windows
 
 ```powershell
-cd examples\greeting-daemon
+cd examples\greeting\greeting-daemon
 go build -o ..\greeting-godart\build\daemon.exe .\cmd\daemon
 cd ..\greeting-godart
 flutter build windows --debug
@@ -81,8 +81,9 @@ go-dart-holons/
 │   ├── xcode_build_phase.sh     # macOS: copy binary into .app bundle
 │   └── proto_gen.sh             # Dual Go + Dart protoc generation
 └── examples/
-    ├── greeting-daemon/         # Go daemon — 56-language greeting service
-    └── greeting-godart/         # Flutter app — language picker + gRPC client
+    └── greeting/                # Greeting example (Go + Dart)
+        ├── greeting-daemon/     # Go daemon — 56-language greeting service
+        └── greeting-godart/     # Flutter app — language picker + gRPC client
 ```
 
 ## Documentation
