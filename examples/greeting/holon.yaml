@@ -26,8 +26,31 @@ description: |
 kind: composite
 build:
   runner: recipe
+  defaults:
+    target: macos
+    mode: debug
+  members:
+    - id: daemon
+      path: greeting-daemon
+      type: holon
+    - id: app
+      path: greeting-godart
+      type: component
+  targets:
+    macos:
+      steps:
+        - build_member: daemon
+        - exec:
+            cwd: greeting-godart
+            argv: ["flutter", "pub", "get"]
+        - exec:
+            cwd: greeting-godart
+            argv: ["flutter", "build", "macos", "--debug"]
+        - assert_file:
+            path: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app
 requires:
   commands: [go, flutter]
   files: [greeting-daemon/go.mod, greeting-godart/pubspec.yaml]
 artifacts:
+  primary: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app
   binary: gudule-greeting-godart

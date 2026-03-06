@@ -24,6 +24,7 @@ description: |
 kind: native
 build:
   runner: go-module
+  main: ./cmd/daemon
 requires:
   commands: [go]
   files: [go.mod]
