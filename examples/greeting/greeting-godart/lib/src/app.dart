@@ -29,14 +29,14 @@ class _GreetingAppState extends State<GreetingApp> {
     if (Platform.isMacOS) {
       // macOS: daemon is in Contents/Resources/
       final bundled =
-          exe.replaceFirst(RegExp(r'/[^/]+$'), '/../Resources/daemon');
+          exe.replaceFirst(RegExp(r'/[^/]+$'), '/../Resources/');
       if (File(bundled).existsSync()) {
         return bundled;
       }
     }
 
     // Dev fallback: local artifact produced by scripts/build_daemon.sh.
-    final name = Platform.isWindows ? 'daemon.exe' : 'daemon';
+    final name = Platform.isWindows ? '.exe' : '';
     final devBinary = File('${Directory.current.path}/../build/$name');
     if (devBinary.existsSync()) {
       return devBinary.path;

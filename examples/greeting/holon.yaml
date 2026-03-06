@@ -30,4 +30,4 @@ requires:
   commands: [go, flutter]
   files: [greeting-daemon/go.mod, greeting-godart/pubspec.yaml]
 artifacts:
-  binary: gudule
+  binary: gudule-greeting-godart

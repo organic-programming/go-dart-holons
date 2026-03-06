@@ -23,7 +23,7 @@ inside the source directories.
 
 ```bash
 cd examples/greeting
-./greeting-godart/scripts/build_daemon.sh   # Go → build/daemon
+./greeting-godart/scripts/build_daemon.sh   # Go → build/gudule-daemon-greeting-godart
 cd greeting-godart
 flutter build macos --debug                 # Xcode copies daemon into .app
 flutter run -d macos
@@ -31,9 +31,9 @@ flutter run -d macos
 
 ### How it works
 
-- `build_daemon.sh` compiles the Go daemon into `greeting/build/daemon`
+- `build_daemon.sh` compiles the Go daemon into `greeting/build/gudule-daemon-greeting-godart`
 - An Xcode "Run Script" build phase copies it into
-  `Contents/Resources/daemon` inside the `.app` bundle
+  `Contents/Resources/gudule-daemon-greeting-godart` inside the `.app` bundle
 - At runtime, the app spawns the daemon with `--listen stdio://`
 - gRPC flows over stdin/stdout pipes (HTTP/2)
 - On ⌘Q, the daemon receives SIGTERM → `GracefulStop()`
@@ -56,15 +56,15 @@ cd examples/greeting
 ../../scripts/build_daemon.sh greeting-daemon build
 cd greeting-godart
 flutter build linux --debug
-cp ../build/daemon build/linux/x64/debug/bundle/daemon
-./build/linux/x64/debug/bundle/gudule
+cp ../build/gudule-daemon-greeting-godart build/linux/x64/debug/bundle/gudule-daemon-greeting-godart
+./build/linux/x64/debug/bundle/gudule-greeting-godart
 ```
 
 ### Cross-compile from macOS
 
 ```bash
 cd examples/greeting/greeting-daemon
-GOOS=linux GOARCH=amd64 go build -o ../../build/daemon ./cmd/daemon
+GOOS=linux GOARCH=amd64 go build -o ../../build/gudule-daemon-greeting-godart ./cmd/gudule-daemon-greeting-godart
 ```
 
 ### Docker (headless CI)
@@ -93,15 +93,15 @@ cd examples\greeting
 ..\..\scripts\build_daemon.sh greeting-daemon build
 cd greeting-godart
 flutter build windows --debug
-copy ..\build\daemon.exe build\windows\x64\runner\Debug\daemon.exe
-.\build\windows\x64\runner\Debug\gudule.exe
+copy ..\build\gudule-daemon-greeting-godart.exe build\windows\x64\runner\Debug\gudule-daemon-greeting-godart.exe
+.\build\windows\x64\runner\Debug\gudule-greeting-godart.exe
 ```
 
 ### Cross-compile from macOS/Linux
 
 ```bash
 cd examples/greeting/greeting-daemon
-GOOS=windows GOARCH=amd64 go build -o ../../build/daemon.exe ./cmd/daemon
+GOOS=windows GOARCH=amd64 go build -o ../../build/gudule-daemon-greeting-godart.exe ./cmd/gudule-daemon-greeting-godart
 ```
 
 ### Shutdown behavior
@@ -128,7 +128,7 @@ desktop platforms.
 cd examples/greeting/greeting-daemon
 CGO_ENABLED=1 GOOS=ios GOARCH=arm64 \
   go build -buildmode=c-shared \
-  -o ../../build/ios/libdaemon.dylib ./cmd/daemon
+  -o ../../build/ios/libdaemon.dylib ./cmd/gudule-daemon-greeting-godart
 ```
 
 ### Integration
@@ -140,7 +140,7 @@ CGO_ENABLED=1 GOOS=ios GOARCH=arm64 \
    code as desktop
 
 ```dart
-final socketPath = '${appSandboxDir}/daemon.sock';
+final socketPath = '${appSandboxDir}/gudule-daemon-greeting-godart.sock';
 daemonFFI.start(socketPath);
 await client.connect('unix://$socketPath');
 ```
@@ -172,7 +172,7 @@ flutter run -d <device-id>
 cd examples/greeting/greeting-daemon
 CGO_ENABLED=1 GOOS=android GOARCH=arm64 \
   go build -buildmode=c-shared \
-  -o ../../build/android/libdaemon.so ./cmd/daemon
+  -o ../../build/android/libdaemon.so ./cmd/gudule-daemon-greeting-godart
 ```
 
 ### Integration

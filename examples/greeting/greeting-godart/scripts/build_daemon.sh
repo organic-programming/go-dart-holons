@@ -12,6 +12,6 @@ GO="$(command -v go)"
 mkdir -p "$OUTPUT_DIR"
 
 echo "Building greeting daemon for $(${GO} env GOOS)/$(${GO} env GOARCH)..."
-"${GO}" build -C "$DAEMON_SRC" -o "$(cd "$OUTPUT_DIR" && pwd)/daemon" ./cmd/daemon
+"${GO}" build -C "$DAEMON_SRC" -o "$(cd "$OUTPUT_DIR" && pwd)/" ./cmd/daemon
 
-echo "Built: ${OUTPUT_DIR}/daemon"
+echo "Built: ${OUTPUT_DIR}/"
