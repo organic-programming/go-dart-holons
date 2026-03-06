@@ -52,5 +52,7 @@ requires:
   commands: [go, flutter]
   files: [greeting-daemon/go.mod, greeting-godart/pubspec.yaml]
 artifacts:
-  primary: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app
+  primary_by_target:
+    macos:
+      debug: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app
   binary: gudule-greeting-godart
