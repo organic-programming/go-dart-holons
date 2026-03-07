@@ -37,7 +37,9 @@ communication goes through Protocol Buffers over an HTTP/2 channel.
 The integration strategy differs by platform:
 
 - **Desktop** (macOS, Linux, Windows): the Go daemon is a standalone
-  binary launched as a child process, communicating via `stdio://` pipes.
+  binary staged as a local holon and launched through
+  `dart-holons.connect("greeting-daemon-greeting-godart")` on
+  ephemeral localhost TCP.
 - **Mobile** (iOS, Android): the Go daemon is compiled as a C shared
   library, loaded in-process via `dart:ffi`, communicating via `unix://`
   domain sockets inside the app sandbox.
@@ -54,10 +56,10 @@ and versioned separately:
 ┌─────────────────────────────────────────────────────┐
 │  godart_app.app                                     │
 │                                                     │
-│  ┌──────────┐   stdio://   ┌─────────────────────┐  │
-│  │ Flutter  │   (pipes)    │ daemon binary       │  │
-│  │ UI + gRPC│◄────────────►│ serve --listen stdio│  │
-│  │ client   │              │ (Go, bundled)       │  │
+│  ┌──────────┐ connect(slug) ┌────────────────────┐  │
+│  │ Flutter  │ ephemeral TCP │ daemon holon       │  │
+│  │ UI + gRPC│◄─────────────►│ serve --listen     │  │
+│  │ client   │               │ tcp://127.0.0.1:0  │  │
 │  └──────────┘              └─────────────────────┘  │
 │                                                     │
 │  macOS: Contents/Resources/daemon                   │
@@ -166,8 +168,9 @@ programming transport layer:
 | `stdio://` | stdin/stdout pipes (HTTP/2 over process pipes) |
 | `mem://` | In-process channel (for Go-to-Go compositing) |
 
-When the Godart app spawns the daemon, it always passes
-`serve --listen stdio://`.
+When the current desktop Godart app spawns the daemon, it stages a
+temporary `holon.yaml` for the bundled binary and starts it through
+`dart-holons.connect()` with `serve --listen tcp://127.0.0.1:0`.
 
 ### 2.2 Bridge package (for Go-to-Go compositing)
 
@@ -189,15 +192,17 @@ func Register(gs *grpc.Server) {
 }
 ```
 
-This is not used by the Godart app (which uses `stdio://`), but it keeps
-the daemon composable with other Go holons.
+The current desktop Godart app does not use this path, but it keeps the
+daemon composable with other Go holons and with historical `stdio://`
+flows.
 
 ---
 
-## 3. The stdio:// Transport — The Key Mechanism
+## 3. Historical Note — The Earlier `stdio://` Prototype
 
-The entire integration hinges on **gRPC over process pipes**. This is
-standard HTTP/2 framing — no custom protocol.
+Earlier revisions of Godart used **gRPC over process pipes**. That
+prototype is still useful background, but the current desktop reference
+implementation no longer uses `stdio://` as its default transport.
 
 ### Server side (Go)
 
@@ -592,16 +597,16 @@ automatically from the app sandbox.
 sequenceDiagram
     participant User
     participant Flutter as Flutter UI
+    participant Connect as dart-holons connect()
     participant gRPC as gRPC Stub
-    participant Pipe as stdin/stdout
     participant Daemon as Go Daemon
 
     User->>Flutter: Click "Start Session"
+    Flutter->>Connect: resolve slug + launch daemon
+    Connect->>Daemon: serve --listen tcp://127.0.0.1:0
     Flutter->>gRPC: startSession(request)
-    gRPC->>Pipe: HTTP/2 frame → stdin
-    Pipe->>Daemon: gRPC handler
-    Daemon-->>Pipe: response → stdout
-    Pipe-->>gRPC: HTTP/2 frame
+    gRPC->>Daemon: HTTP/2 over localhost TCP
+    Daemon-->>gRPC: response
     gRPC-->>Flutter: StartSessionResponse
     Flutter-->>User: Update UI
 ```

@@ -101,7 +101,7 @@ go-dart-holons/
 | SDK | Role |
 |-----|------|
 | [go-holons](https://github.com/organic-programming/go-holons) | Go transport, serving, and identity |
-| [dart-holons](https://github.com/organic-programming/dart-holons) | Dart transport and stdio gRPC client support |
+| [dart-holons](https://github.com/organic-programming/dart-holons) | Dart discovery, `connect()`, and gRPC client/runtime utilities |
 
 ## Organic Programming
 
