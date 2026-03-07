@@ -230,18 +230,20 @@ Note: same constraint as iOS. Android uses in-process FFI, not
 | iOS | c-shared library | Flutter mobile | Pattern documented here |
 | Android | c-shared library | Flutter mobile | Pattern documented here |
 
-## External Daemon Mode
+## Desktop Runtime Mode
 
-`Gudule Greeting Godart` can also connect to an external daemon for development,
-profiling, or debugging:
+`Gudule Greeting Godart` now resolves the bundled daemon as the
+`greeting-daemon-greeting-godart` holon and launches it through
+`dart-holons.connect()`. The SDK starts the daemon on an ephemeral
+localhost TCP port, waits for readiness, and tears it down when the app
+disconnects.
+
+For low-level daemon debugging, you can still run the binary yourself:
 
 ```bash
 cd examples/greeting/greeting-daemon
-go run ./cmd/daemon serve --listen tcp://:9091
+go run ./cmd/daemon serve --listen tcp://127.0.0.1:0
 ```
-
-Then launch `Gudule Greeting Godart` and point it at `tcp://localhost:9091` instead of the
-embedded daemon.
 
 ## Reusing the Pattern in Your Own App
 
@@ -251,7 +253,9 @@ Once `Gudule Greeting Godart` makes sense, the reusable pattern is straightforwa
 2. Generate Dart stubs from that proto with `protoc -I`.
 3. Build the Go daemon first.
 4. Copy or bundle the daemon beside the Flutter app for desktop.
-5. Default to `stdio://` on desktop and `unix://` on mobile.
+5. Stage a local `holon.yaml` that points at that binary and call
+   `dart-holons.connect(slug)`.
+6. Default to `unix://` on mobile when you switch to the FFI pattern.
 
 For the full architectural explanation behind those five steps, read
 [APPS.md](APPS.md).

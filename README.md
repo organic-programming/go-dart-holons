@@ -24,13 +24,15 @@ This repository has two faces:
 
 A Godart app is a Flutter application that ships with a Go backend.
 The Go component runs as a headless gRPC daemon; the Flutter UI is a
-gRPC client. On desktop, they talk over `stdio://` pipes. On mobile,
-the daemon can also be embedded as a shared library and reached over
-`unix://`.
+gRPC client. In the current reference implementation, the desktop app
+stages the bundled daemon as a local holon and lets
+`dart-holons.connect("greeting-daemon-greeting-godart")` launch it on
+ephemeral localhost TCP. On mobile, the daemon can also be embedded as
+a shared library and reached over `unix://`.
 
 | Platform | Transport | Go artifact | Launch |
 |----------|-----------|-------------|--------|
-| macOS, Linux, Windows | `stdio://` | Standalone binary | `Process.start()` |
+| macOS, Linux, Windows | `connect(slug)` → `tcp://127.0.0.1:0` | Standalone binary | `dart-holons.connect()` |
 | iOS, Android | `unix://` | C shared library | `dart:ffi` |
 
 ## Gudule Greeting Godart in Action

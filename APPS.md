@@ -575,15 +575,14 @@ String _resolveDaemonPath() {
 
 | Mode | URI Example | Platform | When to Use |
 |------|-------------|----------|-------------|
-| **Embedded stdio** (desktop default) | `stdio:///path/to/daemon` | macOS, Linux, Windows | Production desktop — everything in one bundle |
+| **SDK connect** (desktop default) | `connect("greeting-daemon-greeting-godart")` | macOS, Linux, Windows | Production desktop — stage the daemon holon and let the SDK launch it |
 | **Embedded unix** (mobile default) | `unix:///sandbox/daemon.sock` | iOS, Android | Production mobile — shared lib + sandbox socket |
-| **External TCP** | `tcp://localhost:9091` | All | Development — run daemon separately with `dlv` or logging |
 | **External Unix** | `unix:///tmp/daemon.sock` | macOS, Linux | Low-latency local IPC |
 
-On desktop, the configuration screen exposes a text field for the daemon
-URI, defaulting to `stdio://` with the bundled binary path. On mobile,
-the `unix://` socket path is determined automatically from the app
-sandbox.
+On desktop, the reference app now writes a temporary `holon.yaml` for
+the bundled daemon and resolves it by slug through `dart-holons`
+`connect()`. On mobile, the `unix://` socket path is determined
+automatically from the app sandbox.
 
 ---
 

@@ -7,7 +7,7 @@ It is the quickest way to see the Godart pattern working in practice:
 
 - Go owns the service contract and business logic
 - Flutter owns the user interface
-- desktop transport is `stdio://`
+- desktop startup goes through `dart-holons.connect("greeting-daemon-greeting-godart")`
 - the daemon is bundled beside the app and launched as a child process
 
 ## What You Build
@@ -61,11 +61,13 @@ copy ..\build\gudule-daemon-greeting-godart.exe `
 ## What to Expect at Runtime
 
 - `Gudule Greeting Godart` starts the bundled daemon automatically.
-- The daemon serves gRPC over `stdio://`.
+- The app stages a temporary `holon.yaml`, resolves the daemon by slug,
+  and lets `dart-holons.connect()` launch it on an ephemeral local TCP
+  port.
 - The UI lets you choose a language and request greetings from the Go
   backend.
-- If no bundled daemon is found during development, the app can still
-  connect to `tcp://localhost:9091`.
+- During development, the app uses the daemon binary built into
+  `../build/` and runs the same slug-based connect flow.
 
 ## Why This Example Matters
 

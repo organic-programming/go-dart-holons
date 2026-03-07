@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class _GreetingAppState extends State<GreetingApp> {
   final GreetingClient _client = GreetingClient();
   bool _connecting = true;
   String? _error;
+  static const String _daemonBaseName = 'gudule-daemon-greeting-godart';
 
   @override
   void initState() {
@@ -25,29 +27,31 @@ class _GreetingAppState extends State<GreetingApp> {
   }
 
   String? _resolveEmbeddedDaemonPath() {
+    final daemonFileName =
+        Platform.isWindows ? '$_daemonBaseName.exe' : _daemonBaseName;
     final exe = Platform.resolvedExecutable;
     if (Platform.isMacOS) {
-      // macOS: daemon is in Contents/Resources/
-      final bundled =
-          exe.replaceFirst(RegExp(r'/[^/]+$'), '/../Resources/');
-      if (File(bundled).existsSync()) {
-        return bundled;
+      final bundled = File(
+        '${File(exe).parent.parent.path}/Resources/$daemonFileName',
+      );
+      if (bundled.existsSync()) {
+        return bundled.path;
       }
     }
 
     // Dev fallback: local artifact produced by scripts/build_daemon.sh.
-    final name = Platform.isWindows ? '.exe' : '';
-    final devBinary = File('${Directory.current.path}/../build/$name');
+    final devBinary = File(
+      '${Directory.current.path}/../build/$daemonFileName',
+    );
     if (devBinary.existsSync()) {
       return devBinary.path;
     }
 
     // Linux/Windows bundle layout: daemon sits next to the executable.
     if (!Platform.isMacOS) {
-      final dir = File(exe).parent.path;
-      final sibling = '$dir/$name';
-      if (File(sibling).existsSync()) {
-        return sibling;
+      final sibling = File('${File(exe).parent.path}/$daemonFileName');
+      if (sibling.existsSync()) {
+        return sibling.path;
       }
     }
 
@@ -57,13 +61,12 @@ class _GreetingAppState extends State<GreetingApp> {
   Future<void> _connect() async {
     try {
       final daemonPath = _resolveEmbeddedDaemonPath();
-
-      if (daemonPath != null) {
-        await _client.connectEmbedded(daemonPath);
-      } else {
-        // Fallback: external daemon for development.
-        await _client.connect('tcp://localhost:9091');
+      if (daemonPath == null) {
+        throw StateError(
+          'Daemon binary not found. Build greeting-daemon before launching the app.',
+        );
       }
+      await _client.connectDaemon(daemonPath);
       setState(() => _connecting = false);
     } catch (e) {
       setState(() {
@@ -75,7 +78,7 @@ class _GreetingAppState extends State<GreetingApp> {
 
   @override
   void dispose() {
-    _client.close();
+    unawaited(_client.close());
     super.dispose();
   }
 

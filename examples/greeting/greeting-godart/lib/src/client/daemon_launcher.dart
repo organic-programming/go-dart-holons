@@ -1,53 +1,91 @@
 import 'dart:io';
 
 import 'package:grpc/grpc.dart';
-import 'package:holons/holons.dart';
+import 'package:holons/holons.dart' as holons;
 
-/// Manages the embedded Go daemon process lifecycle.
+/// Stages the bundled daemon as a discoverable holon and connects to it.
 class DaemonLauncher {
-  ClientTransportConnectorChannel? _channel;
-  Process? _process;
+  static const String _slug = 'greeting-daemon-greeting-godart';
+  static const String _uuid = '1a409a1e-69e3-4846-9f9b-47b0a6f98f84';
+  static const String _familyName = 'Greeting-Godart';
 
-  bool get isRunning => _process != null;
+  Directory? _root;
 
-  /// Spawns the daemon binary and returns a gRPC channel over stdio.
-  Future<ClientTransportConnectorChannel> start(String binaryPath) async {
+  Future<ClientChannel> start(String binaryPath) async {
     await stop();
-
     final file = File(binaryPath);
     if (!file.existsSync()) {
       throw StateError('Daemon binary not found: $binaryPath');
     }
 
-    final (channel, process) = await dialStdio(binaryPath);
-    _channel = channel;
-    _process = process;
+    final root =
+        await Directory.systemTemp.createTemp('greeting-godart-holon-');
+    _root = root;
+    final holonDir = Directory(
+      '${root.path}${Platform.pathSeparator}holons${Platform.pathSeparator}$_slug',
+    );
+    await holonDir.create(recursive: true);
+    await File(
+      '${holonDir.path}${Platform.pathSeparator}holon.yaml',
+    ).writeAsString(_manifestFor(file.absolute.path));
 
-    // Forward daemon stderr to debug console.
-    process.stderr
-        .transform(const SystemEncoding().decoder)
-        .listen((line) => stderr.write('[daemon] $line'));
-
-    return channel;
+    final previousDirectory = Directory.current.path;
+    try {
+      Directory.current = root.path;
+      return await holons.connect(_slug);
+    } catch (_) {
+      await _deleteRoot(root);
+      _root = null;
+      rethrow;
+    } finally {
+      Directory.current = previousDirectory;
+    }
   }
 
-  /// Gracefully stops the daemon: SIGTERM, then SIGKILL after 5s.
-  Future<void> stop() async {
-    final channel = _channel;
-    final process = _process;
-    _channel = null;
-    _process = null;
+  Future<void> stop([ClientChannel? channel]) async {
+    final root = _root;
+    _root = null;
 
-    if (channel != null) await channel.shutdown();
-    if (process != null) {
-      process.kill(ProcessSignal.sigterm);
-      await process.exitCode.timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          process.kill(ProcessSignal.sigkill);
-          return -1;
-        },
-      );
+    try {
+      if (channel != null) {
+        await holons.disconnect(channel);
+      }
+    } finally {
+      if (root != null) {
+        await _deleteRoot(root);
+      }
     }
+  }
+
+  String _manifestFor(String binaryPath) {
+    final escapedBinaryPath = _escapeYaml(binaryPath);
+    return '''
+schema: holon/v0
+uuid: "$_uuid"
+given_name: greeting-daemon
+family_name: "$_familyName"
+motto: Greets users in 56 languages — a Godart recipe example.
+composer: B. ALTER
+clade: deterministic/pure
+status: draft
+born: "2026-02-20"
+generated_by: manual
+kind: native
+build:
+  runner: go-module
+artifacts:
+  binary: "$escapedBinaryPath"
+''';
+  }
+
+  String _escapeYaml(String value) {
+    return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+  }
+
+  Future<void> _deleteRoot(Directory root) async {
+    if (!root.existsSync()) {
+      return;
+    }
+    await root.delete(recursive: true);
   }
 }
