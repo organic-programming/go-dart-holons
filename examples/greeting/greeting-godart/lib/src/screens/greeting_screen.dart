@@ -132,6 +132,7 @@ class _GreetingScreenState extends State<GreetingScreen>
 
               // Name input
               TextField(
+                key: const ValueKey('name-input'),
                 controller: _nameController,
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 18),
                 decoration: InputDecoration(
@@ -157,6 +158,7 @@ class _GreetingScreenState extends State<GreetingScreen>
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
+                  key: const ValueKey('greet-button'),
                   onPressed: _greet,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6C5CE7),
@@ -169,7 +171,7 @@ class _GreetingScreenState extends State<GreetingScreen>
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: const Text('Greet Me'),
+                  child: const Text('Greet'),
                 ),
               ),
               const SizedBox(height: 32),
@@ -179,6 +181,7 @@ class _GreetingScreenState extends State<GreetingScreen>
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Container(
+                    key: const ValueKey('greeting-output'),
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -230,6 +233,7 @@ class _GreetingScreenState extends State<GreetingScreen>
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButton<Language>(
+        key: const ValueKey('language-picker'),
         value: _selectedLanguage,
         isExpanded: true,
         dropdownColor: const Color(0xFF1A1A2E),
