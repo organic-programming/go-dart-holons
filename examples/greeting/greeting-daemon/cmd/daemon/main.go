@@ -4,10 +4,12 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
+	pb "github.com/organic-programming/go-dart-holons/examples/greeting-daemon/gen/go/greeting/v1"
 	"github.com/organic-programming/go-dart-holons/examples/greeting-daemon/internal/server"
 	"github.com/organic-programming/go-holons/pkg/serve"
+
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -18,10 +20,9 @@ func main() {
 	switch os.Args[1] {
 	case "serve":
 		listenURI := serve.ParseFlags(os.Args[2:])
-		if strings.TrimSpace(listenURI) == "" {
-			listenURI = "tcp://:9091"
-		}
-		if err := server.ListenAndServe(listenURI, true); err != nil {
+		if err := serve.Run(listenURI, func(gs *grpc.Server) {
+			pb.RegisterGreetingServiceServer(gs, &server.Server{})
+		}); err != nil {
 			fmt.Fprintf(os.Stderr, "serve error: %v\n", err)
 			os.Exit(1)
 		}
