@@ -54,6 +54,20 @@ build:
             to: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app/Contents/Resources/gudule-daemon-greeting-godart
         - assert_file:
             path: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app
+    windows:
+      steps:
+        - build_member: daemon
+        - exec:
+            cwd: greeting-godart
+            argv: ["flutter", "pub", "get"]
+        - exec:
+            cwd: greeting-godart
+            argv: ["flutter", "build", "windows", "--debug"]
+        - copy:
+            from: greeting-daemon/.op/build/bin/gudule-daemon-greeting-godart
+            to: greeting-godart/build/windows/x64/runner/Debug/gudule-daemon-greeting-godart.exe
+        - assert_file:
+            path: greeting-godart/build/windows/x64/runner/Debug/gudule-greeting-godart.exe
 requires:
   commands: [go, flutter]
   files: [greeting-daemon/go.mod, greeting-godart/pubspec.yaml]
@@ -61,4 +75,6 @@ artifacts:
   primary_by_target:
     macos:
       debug: greeting-godart/build/macos/Build/Products/Debug/gudule-greeting-godart.app
+    windows:
+      debug: greeting-godart/build/windows/x64/runner/Debug/gudule-greeting-godart.exe
   binary: gudule-greeting-godart
