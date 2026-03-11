@@ -1,15 +1,31 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:grpc/grpc.dart';
+import 'package:grpc/src/client/connection.dart' show ClientConnection;
+import 'package:grpc/src/client/http2_connection.dart'
+    show Http2ClientConnection;
 import 'package:holons/holons.dart' as holons;
 
-/// Stages the bundled daemon as a discoverable holon and connects to it.
-class DaemonLauncher {
-  static const String _slug = 'greeting-daemon-greeting-godart';
-  static const String _uuid = '1a409a1e-69e3-4846-9f9b-47b0a6f98f84';
-  static const String _familyName = 'Greeting-Godart';
+const ChannelOptions _stdioChannelOptions = ChannelOptions(
+  credentials: ChannelCredentials.insecure(),
+  idleTimeout: null,
+);
 
-  Directory? _root;
+class _StdioClientChannel extends ClientChannel {
+  final holons.StdioTransportConnector _connector;
+
+  _StdioClientChannel(this._connector)
+      : super('localhost', port: 0, options: _stdioChannelOptions);
+
+  @override
+  ClientConnection createConnection() =>
+      Http2ClientConnection.fromClientTransportConnector(_connector, options);
+}
+
+/// Launches the bundled daemon over stdio without relying on holon discovery.
+class DaemonLauncher {
+  Process? _process;
 
   Future<ClientChannel> start(String binaryPath) async {
     await stop();
@@ -18,74 +34,37 @@ class DaemonLauncher {
       throw StateError('Daemon binary not found: $binaryPath');
     }
 
-    final root =
-        await Directory.systemTemp.createTemp('greeting-godart-holon-');
-    _root = root;
-    final holonDir = Directory(
-      '${root.path}${Platform.pathSeparator}holons${Platform.pathSeparator}$_slug',
+    final connector = await holons.StdioTransportConnector.spawn(
+      file.absolute.path,
     );
-    await holonDir.create(recursive: true);
-    await File(
-      '${holonDir.path}${Platform.pathSeparator}holon.yaml',
-    ).writeAsString(_manifestFor(file.absolute.path));
-
-    final previousDirectory = Directory.current.path;
-    try {
-      Directory.current = root.path;
-      return await holons.connect(_slug);
-    } catch (_) {
-      await _deleteRoot(root);
-      _root = null;
-      rethrow;
-    } finally {
-      Directory.current = previousDirectory;
-    }
+    unawaited(connector.process.stderr.drain<void>());
+    _process = connector.process;
+    return _StdioClientChannel(connector);
   }
 
   Future<void> stop([ClientChannel? channel]) async {
-    final root = _root;
-    _root = null;
+    final process = _process;
+    _process = null;
 
     try {
       if (channel != null) {
-        await holons.disconnect(channel);
+        await channel.shutdown();
       }
     } finally {
-      if (root != null) {
-        await _deleteRoot(root);
+      if (process != null) {
+        await _stopProcess(process);
       }
     }
   }
 
-  String _manifestFor(String binaryPath) {
-    final escapedBinaryPath = _escapeYaml(binaryPath);
-    return '''
-schema: holon/v0
-uuid: "$_uuid"
-given_name: greeting-daemon
-family_name: "$_familyName"
-motto: Greets users in 56 languages — a Godart recipe example.
-composer: B. ALTER
-clade: deterministic/pure
-status: draft
-born: "2026-02-20"
-generated_by: manual
-kind: native
-build:
-  runner: go-module
-artifacts:
-  binary: "$escapedBinaryPath"
-''';
-  }
-
-  String _escapeYaml(String value) {
-    return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
-  }
-
-  Future<void> _deleteRoot(Directory root) async {
-    if (!root.existsSync()) {
-      return;
-    }
-    await root.delete(recursive: true);
+  Future<void> _stopProcess(Process process) async {
+    process.kill(ProcessSignal.sigterm);
+    await process.exitCode.timeout(
+      const Duration(seconds: 2),
+      onTimeout: () {
+        process.kill(ProcessSignal.sigkill);
+        return process.exitCode;
+      },
+    );
   }
 }
